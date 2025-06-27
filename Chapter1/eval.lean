@@ -169,71 +169,76 @@ def length {α : Type} (l : List α) : Natural
 #check (List.length (α := Int))
 
 -- Exercise 1.6.5
-def last {α : Type} (l : List α) : Option α
-  := match l with
-    | [] => none
-    | [x] => some x
-    | _ :: xs => last xs
+
+def last : List α → Option α
+  | []      => none
+  | [x]     => some x
+  | _ :: xs => last xs
 
 #eval last [1, 2, 3]
 #eval last [] (α := Int)
 
-def List.findFirst? {α : Type}
+def List.findFirst?
   (l : List α) (p : α → Bool)
   :  Option α
   := match l with
-    | [] => none
+    | []      => none
     | x :: xs =>
       match p x with
         | false => findFirst? xs p
         | true  => some x
 
-def Nat.even (n : Nat) : Bool
-  := match n with
-    | zero => true
-    | succ k => not (even k)
+-- this one better
+def List.findFirst'? (p : α → Bool) : List α → Option α
+  | []      => none
+  | x :: xs =>
+    match p x with
+      | true  => some x
+      | false => findFirst'? p xs
+
+def Nat.even : Nat → Bool
+  | 0     => true
+  | n + 1 => not (even n)
 
 #eval [1,3,5,4,7,9,0].findFirst? Nat.even
 
-def Prod.switch {α β : Type} (p : α × β) : β × α
-  := match p with
-    | (a, b) => (b, a)
+def Prod.switch :  α × β → β × α
+  | (a, b) => (b, a)
 
 #eval (69, true).switch
 
-def List.myzip {α β : Type}
-  (as : List α) (bs : List β)
-  :  List (α × β)
-  := match as with
-    | []      => []
-    | x :: xs =>
-      match bs with
-        | []      => []
-        | y :: ys => (x, y) :: myzip xs ys
+def List.myzip : List α → List β → List (α × β)
+  | []     , _       => []
+  | _      , []      => []
+  | x :: xs, y :: ys => (x , y) :: myzip xs ys
 
-def List.mytake {α : Type} (n : Nat) (l : List α) : List α
-  := match n with
-    | .zero   => []
-    | .succ k =>
-      match l with
-        | []      => []
-        | x :: xs => x :: mytake k xs
+def List.mytake : Nat → List α → List α
+  | 0    , _       => []
+  | _    , []      => []
+  | n + 1, x :: xs => x :: mytake n xs
 
 #eval [1,2,3].mytake 10
 #eval [1,2,3].mytake 2
 #eval [1,2,3].mytake 1
 #eval [1,2,3].mytake 0
 
-def distProdSum {α β γ : Type}
-  (x : α × (β ⊕ γ))
-  :  (α × β) ⊕ (α × γ)
-  := match x with
-    | (a, x') =>
-      match x' with
-        | .inl b => .inl (a, b)
-        | .inr c => .inr (a, c)
+def distProdSum : α × (β ⊕ γ) →  (α × β) ⊕ (α × γ)
+  | (a, x) =>
+    match x with
+      | .inl b => .inl (a, b)
+      | .inr c => .inr (a, c)
 
-def boolαSum {α : Type} (x : Bool × α) : α ⊕ α
-  := match x with
-    | (true,  a) => .inl a
-    | (false, a) => .inr a
+def boolαSum : Bool × α → α ⊕ α
+  | (true,  a) => .inl a
+  | (false, a) => .inr a
+
+def List.myunzip : List (α × β) → List α × List β
+  | [] => ([],[])
+  | (x, y) :: xys =>
+    let (xs, ys) := xys.myunzip
+    (x :: xs, y :: ys)
+
+def add1' := (· + 1)
+#check add1'
+
+def origin' : Point := ⟨0, 0⟩
