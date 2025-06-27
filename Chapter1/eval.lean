@@ -167,3 +167,73 @@ def length {α : Type} (l : List α) : Natural
     | _ :: xs => .succ (length xs)
 
 #check (List.length (α := Int))
+
+-- Exercise 1.6.5
+def last {α : Type} (l : List α) : Option α
+  := match l with
+    | [] => none
+    | [x] => some x
+    | _ :: xs => last xs
+
+#eval last [1, 2, 3]
+#eval last [] (α := Int)
+
+def List.findFirst? {α : Type}
+  (l : List α) (p : α → Bool)
+  :  Option α
+  := match l with
+    | [] => none
+    | x :: xs =>
+      match p x with
+        | false => findFirst? xs p
+        | true  => some x
+
+def Nat.even (n : Nat) : Bool
+  := match n with
+    | zero => true
+    | succ k => not (even k)
+
+#eval [1,3,5,4,7,9,0].findFirst? Nat.even
+
+def Prod.switch {α β : Type} (p : α × β) : β × α
+  := match p with
+    | (a, b) => (b, a)
+
+#eval (69, true).switch
+
+def List.myzip {α β : Type}
+  (as : List α) (bs : List β)
+  :  List (α × β)
+  := match as with
+    | []      => []
+    | x :: xs =>
+      match bs with
+        | []      => []
+        | y :: ys => (x, y) :: myzip xs ys
+
+def List.mytake {α : Type} (n : Nat) (l : List α) : List α
+  := match n with
+    | .zero   => []
+    | .succ k =>
+      match l with
+        | []      => []
+        | x :: xs => x :: mytake k xs
+
+#eval [1,2,3].mytake 10
+#eval [1,2,3].mytake 2
+#eval [1,2,3].mytake 1
+#eval [1,2,3].mytake 0
+
+def distProdSum {α β γ : Type}
+  (x : α × (β ⊕ γ))
+  :  (α × β) ⊕ (α × γ)
+  := match x with
+    | (a, x') =>
+      match x' with
+        | .inl b => .inl (a, b)
+        | .inr c => .inr (a, c)
+
+def boolαSum {α : Type} (x : Bool × α) : α ⊕ α
+  := match x with
+    | (true,  a) => .inl a
+    | (false, a) => .inr a
