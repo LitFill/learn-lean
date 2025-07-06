@@ -43,7 +43,7 @@ def process
     process exitCode args
 
   | fname :: args =>
-    let stream <- fileStream ⟨fname⟩
+    let stream <- fileStream fname
     match stream with
     | none => process 1 args
     | some stream =>
